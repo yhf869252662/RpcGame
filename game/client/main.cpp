@@ -39,7 +39,19 @@ int main(int argc, char* argv[])
 		switch(select)
 		{
 			case 1:
-
+				{
+					uint32_t ret = Login(ip, port);
+					if (ret >= 10000)
+					{
+						id = ret;
+						cout << "登录成功，开始游戏吧!" <<endl;
+						Game(ip, port, id);
+					}
+					else
+					{
+						cout << "登录失败，退出码：" << ret << endl;
+					}
+				}
 				break;
 			case 2:
 				{
@@ -60,6 +72,7 @@ int main(int argc, char* argv[])
 				exit(2);
 				break;
 			default:
+				cout << "选择有误，请重新选择!" << endl;
 				break;
 		}
 	}

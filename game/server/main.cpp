@@ -14,6 +14,10 @@ uint32_t RpcRegister(connection* conn, string name, string passwd)//conn里面�
 {
     return GameHall.Register(name, passwd);
 }
+uint32_t RpcLogin(connection* conn, uint32_t id, string passwd)//conn里面应该包含socket
+{
+    return GameHall.Login(id, passwd);
+}
 
 int main()
 {
@@ -21,6 +25,7 @@ int main()
 	LOG(INFO, "服务器初始化完成......");
 
     server.register_handler("RpcRegister", RpcRegister);
+    server.register_handler("RpcLogin", RpcLogin);
 	LOG(INFO, "所有方法注册完毕......");
 
 	server.run();

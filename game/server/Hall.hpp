@@ -46,6 +46,10 @@ public:
 	{
 		pm.InsertPlayer(name, passwd);	
 	}
+	uint32_t Login(uint32_t& id, string& passwd)
+	{
+		pm.SearchPlayer(id, passwd);
+	}
 	static void* MatchService(void *arg)
 	{
 		pthread_detach(pthread_self());//线程分离
