@@ -71,6 +71,47 @@ public:
 		LOG(INFO, "用户登录成功......");
 		return id;
 	}
+	void SetPlayerStatus(uint32_t& one, uint32_t& two)
+	{
+		Lock();
+		player_set[one].Playing();
+		player_set[two].Playing();
+		Unlock();
+	}
+	void SetMatch(uint32_t& id)
+	{
+		Lock();
+		player_set[id].Matching();
+		Unlock();
+	}
+	void SetPlayRoom(uint32_t& room_id, uint32_t& one, uint32_t& two)
+	{
+		Lock();
+		player_set[one].SetRoom(room_id);
+		player_set[two].SetRoom(room_id);
+		Unlock();
+	}
+	int Ready(uint32_t& id)
+	{
+		Lock();
+		int st = player_set[id].Status();
+		Unlock();
+		return st;
+	}
+	int GetRate(uint32_t& id)
+	{
+		Lock();
+		int ra = player_set[id].Rate();
+		Unlock();
+		return ra;
+	}
+	int GetPlayerRoomId(uint32_t& id)
+	{
+		Lock();
+		int room_id = player_set[id].Room();
+		Unlock();
+		return room_id;
+	}
 	~PlayerManager()
 	{
 		pthread_mutex_destroy(&lock);

@@ -5,6 +5,7 @@
 
 #include "Log.hpp"
 #include "PlayerManager.hpp"
+#include "RoomManager.hpp"
 
 using namespace std;
 
@@ -42,6 +43,18 @@ public:
 	{
 		return match_num;
 	}
+	void IncMatchNum()
+	{
+		++match_num;
+	}
+	void DecMatchNum()
+	{
+		--match_num;
+	}
+	void ReSetMatchNum()
+	{
+		match_num = 0;
+	}
 	uint32_t Register(string& name, string& passwd)
 	{
 		pm.InsertPlayer(name, passwd);	
@@ -49,6 +62,49 @@ public:
 	uint32_t Login(uint32_t& id, string& passwd)
 	{
 		pm.SearchPlayer(id, passwd);
+	}
+	bool PushIdInMatchPool(uint32_t& id)
+	{
+		LOG(INFO, "用户放入匹配池中......");
+		pm.SetMatch(id);
+		LockMatchPool();
+		int rate = pm.GetRate(id);
+		auto& v = match_pool[rate];
+		for(auto& i: v)
+		{
+			if (i == id)
+			{
+				UnlockMatchPool();
+				return false;
+			}
+		}
+		v.push_back(id);
+		IncMatchNum();
+		ServiceWakeup();
+		UnlockMatchPool();
+		return true;
+	}
+	bool PopIdMatchPool(uint32_t& id)
+	{
+		LockMatchPool();
+		int rate = pm.GetRate(id);
+		auto& v = match_pool[rate];
+		for (auto it=v.begin(); it!=v.end(); ++it)
+		{
+			if (*it == id)
+			{
+				v.erase(it);
+				break;
+			}
+		}
+		DecMatchNum();
+		UnlockMatchPool();
+		pm.SetOnline(id);
+		return true;
+	}
+	int IsPlayerReady(uint32_t& id)
+	{
+		return pm.Ready(id);
 	}
 	static void* MatchService(void *arg)
 	{

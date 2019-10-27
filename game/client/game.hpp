@@ -78,10 +78,95 @@ uint32_t Login(const string& ip, const int& port)
 }
 void GameMenu()
 {
-        cout<<"********************************"<<endl;
-        cout<<"***1.五子棋        0.退出 ******"<<endl;
-        cout<<"********************************"<<endl;
-        cout<<"请选择：";
+	//printf("\ec");
+    cout<<"********************************"<<endl;
+    cout<<"***1.五子棋        0.退出 ******"<<endl;
+    cout<<"********************************"<<endl;
+    cout<<"请选择：";
+}
+bool PushMatchPool(const string& ip, const int& port, uint32_t& id)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        return client.call<uint32_t>("RpcMatchAndWait", id);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+bool PopMatchPool(const string& ip, const int& port, uint32_t& id)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        return client.call<uint32_t>("RpcPopMatchPool", id);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+uint32_t CheckReady(const string& ip, const int& port, uint32_t& id)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        return client.call<uint32_t>("RpcPlayerReady", id);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+bool Match(const string& ip, const int& port, uint32_t& id)
+{
+	PushMatchPool(ip, port, id);
+	int count = 20;
+
+	while (1)
+	{
+		int ret = CheckReady(ip, port, id);
+		//cout << "ret = " << ret << endl;
+		
+		switch (ret)
+		{
+		case 3:
+			//匹配成功
+			return true;
+			break;
+		case 2:
+			//还在匹配中
+			printf("匹配中------%2d\r", count--);//倒计时
+			fflush(stdout);
+			if(count <= 0)
+			{
+				cout << "匹配超时!" <<endl;
+				PopMatchPool(ip, port, id);
+				return false;
+			}
+			sleep(1);
+			break;
+		case 1:
+			return false;
+			//匹配失败
+			break;
+		default:
+			break;
+		}
+	}
+	return false;
+
 }
 void Game(const string& ip, const int& port, uint32_t& id)
 {
@@ -97,7 +182,14 @@ void Game(const string& ip, const int& port, uint32_t& id)
 		{
 		case 1:
 			{
-
+				if(Match(ip, port, id))	
+				{
+					//PlayerGobang(ip, port, id);
+				}
+				else
+				{
+					cout << "匹配失败，请稍后重试......" << endl;
+				}
 			}
 			break;
 		case 0:

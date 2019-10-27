@@ -534,4 +534,6 @@ CMakeFiles/game_server.dir/main.cpp.o
  /home/lyhf/code/RpcGame/game/server/Log.hpp
  /home/lyhf/code/RpcGame/game/server/Player.hpp
  /home/lyhf/code/RpcGame/game/server/PlayerManager.hpp
+ /home/lyhf/code/RpcGame/game/server/Room.hpp
+ /home/lyhf/code/RpcGame/game/server/RoomManager.hpp
  /home/lyhf/code/RpcGame/game/server/main.cpp

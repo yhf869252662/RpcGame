@@ -4989,6 +4989,8 @@ Log.hpp
 /home/lyhf/code/RpcGame/game/server/Log.hpp
 PlayerManager.hpp
 /home/lyhf/code/RpcGame/game/server/PlayerManager.hpp
+RoomManager.hpp
+/home/lyhf/code/RpcGame/game/server/RoomManager.hpp
 
 /home/lyhf/code/RpcGame/game/server/Log.hpp
 iostream
@@ -5017,6 +5019,22 @@ Player.hpp
 /home/lyhf/code/RpcGame/game/server/Player.hpp
 Log.hpp
 /home/lyhf/code/RpcGame/game/server/Log.hpp
+
+/home/lyhf/code/RpcGame/game/server/Room.hpp
+iostream
+-
+Player.hpp
+/home/lyhf/code/RpcGame/game/server/Player.hpp
+
+/home/lyhf/code/RpcGame/game/server/RoomManager.hpp
+iostream
+-
+unordered_map
+-
+pthread.h
+-
+Room.hpp
+/home/lyhf/code/RpcGame/game/server/Room.hpp
 
 /home/lyhf/code/RpcGame/game/server/main.cpp
 iostream
