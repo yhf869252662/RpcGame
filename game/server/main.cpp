@@ -48,6 +48,7 @@ int main()
 
 	GameHall.InitHall();
 	
+	//使服务器等待，等待客户端操作
 	string str;
 	cin >> str;
 

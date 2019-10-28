@@ -29,6 +29,44 @@ public:
 	{
 		pthread_mutex_unlock(&lock);
 	}
+    void Step(uint32_t& room_id, uint32_t& id, int& x, int& y)
+	{
+		Room& r = room_set[room_id];
+		Lock();
+		r.Step(id, x, y);
+		Unlock();
+	}
+    bool IsMyTurn(uint32_t& room_id, uint32_t& id)
+	{
+		Room& r = room_set[room_id];
+		Lock();
+		bool ret = r.IsMyTurn(id);
+		Unlock();
+		return ret;
+	}
+    char GetPlayerPiece(uint32_t& room_id, uint32_t& id)
+	{
+		Room& r = room_set[room_id];
+		Lock();
+		char ret = r.Piece(id);
+		Unlock();
+		return ret;
+	}
+    char Judge(uint32_t& room_id, uint32_t& id)
+	{
+		Room& r = room_set[room_id];
+		Lock();
+		char ret = r.GameResult();
+		Unlock();
+		return ret;
+	}
+    void GetBoard(uint32_t& room_id, string& board)
+	{
+		Room& r = room_set[room_id];
+		Lock();
+		r.Board(board);
+		Unlock();
+	}
 	uint32_t CreateRoom(uint32_t& one, uint32_t& two)
 	{
 		Lock();

@@ -168,6 +168,11 @@ bool Match(const string& ip, const int& port, uint32_t& id)
 	return false;
 
 }
+void PlayerGobang(const string& ip, const int& port, uint32_t& id)
+{
+	printf("\ec");
+	cout << "匹配成功，开始游戏吧！" << endl;
+}
 void Game(const string& ip, const int& port, uint32_t& id)
 {
 	int select = 0;
@@ -184,7 +189,7 @@ void Game(const string& ip, const int& port, uint32_t& id)
 			{
 				if(Match(ip, port, id))	
 				{
-					//PlayerGobang(ip, port, id);
+					PlayerGobang(ip, port, id);
 				}
 				else
 				{

@@ -15,6 +15,7 @@ class Hall
 {
 private:
 	PlayerManager pm;
+	RoomManager rm;
 	vector<vector<uint32_t>> match_pool;
 	int match_num;//匹配池人数
 	pthread_mutex_t match_lock;
@@ -80,6 +81,7 @@ public:
 		}
 		v.push_back(id);
 		IncMatchNum();
+		//有用户了尝试唤醒，看是否可以进行匹配
 		ServiceWakeup();
 		UnlockMatchPool();
 		return true;
@@ -99,12 +101,49 @@ public:
 		}
 		DecMatchNum();
 		UnlockMatchPool();
+
 		pm.SetOnline(id);
 		return true;
 	}
 	int IsPlayerReady(uint32_t& id)
 	{
 		return pm.Ready(id);
+	}
+	void MatchPoolClear(uint32_t& id)
+	{
+		LOG(INFO, "匹配池清空......");
+		for (auto it=match_pool.begin(); it!=match_pool.end(); ++it)
+		{
+			auto& v = *it;
+			if (v.empty())
+				continue;
+			vector<uint32_t>().swap(v);//与将死的空数组交换
+		}
+		ReSetMatchNum();
+		//剩下的一个用户重新等待
+		if (id > 10000)
+			pm.SetOnline(id);
+	}
+	void GetAllMatchId(vector<uint32_t>& id_list)
+	{
+		//遍历每一个等级的数组
+		for (int i=MATCH_LEVEL-1; i>=0; --i)
+		{
+			auto& v = match_pool[i];
+			if (v.empty())
+				continue;
+			//按等级由高到低存入匹配序列中
+			for (auto it=v.begin(); it!=v.end(); ++it)
+			{
+				id_list.push_back(*it);
+			}
+		}
+	}
+	void GamePrepare(uint32_t& one, uint32_t& two)
+	{
+		uint32_t room_id = rm.CreateRoom(one, two);
+		pm.SetPlayerStatus(one, two);
+		pm.SetPlayRoom(room_id, one, two);
 	}
 	static void* MatchService(void *arg)
 	{
@@ -119,6 +158,32 @@ public:
 				hp->ServiceWait();
 			}
 			LOG(INFO, "服务线程被唤醒......");
+			
+			uint32_t last = 0;
+			//将等级相近的匹配
+			vector<uint32_t> id_list;
+			hp->GetAllMatchId(id_list);
+			size_t num = id_list.size();
+			//剩余一人等待再次匹配
+			if (num & 1)
+			{
+				last = id_list[num-1];
+				num -= 1;
+			}
+			else
+			{
+				last = 0;
+			}
+			
+			for (auto i=0; i<num; i+=2)
+			{
+				uint32_t one = id_list[i];
+				uint32_t two = id_list[i+1];
+				hp->GamePrepare(one, two);
+			}
+
+			hp->MatchPoolClear(last);
+			hp->UnlockMatchPool();
 		}
 	}
 	void InitHall()
