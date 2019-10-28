@@ -52,7 +52,7 @@ public:
 		Unlock();
 		return ret;
 	}
-    char Judge(uint32_t& room_id, uint32_t& id)
+    char Judge(uint32_t& room_id)
 	{
 		Room& r = room_set[room_id];
 		Lock();

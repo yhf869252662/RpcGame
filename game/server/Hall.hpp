@@ -186,6 +186,32 @@ public:
 			hp->UnlockMatchPool();
 		}
 	}
+	void Step(uint32_t& room_id, uint32_t& id, int& x, int& y)
+	{
+		rm.Step(room_id, id, x, y);
+	}
+	char Judge(uint32_t& room_id)
+	{
+		return rm.Judge(room_id);
+	}
+	bool IsMyTurn(uint32_t& room_id, uint32_t& id)
+	{
+		return rm.IsMyTurn(room_id, id);
+	}
+	char GetPlayerPiece(uint32_t& room_id, uint32_t& id)
+	{
+		return rm.GetPlayerPiece(room_id, id);
+	}
+	uint32_t GetPlayerRoomId(uint32_t& id)
+	{
+		return pm.GetPlayerRoomId(id);
+	}
+	string GetPlayerBoard(uint32_t& room_id)
+	{
+		string board;
+		rm.GetBoard(room_id, board);
+		return board;
+	}
 	void InitHall()
 	{
 		pthread_mutex_init(&match_lock, NULL);

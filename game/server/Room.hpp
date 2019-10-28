@@ -65,7 +65,67 @@ public:
 	}
 	char Judge()
 	{	
+		//判断行
+		for(int i=0; i<SIZE; ++i)
+		{
+			int count = 0;
+			for(int j=0; j<SIZE; ++j)
+			{
+				count += board[i][j];
+			}
+			if(count/SIZE == board[i][0])
+			{
+				return board[i][0];
+			}
+		}
 
+		//判断列
+		for(int j=0; j<SIZE; ++j)
+		{
+			int count = 0;
+			for(int i=0; i<SIZE; ++i)
+			{
+				count += board[i][j];
+			}
+			if(count/SIZE == board[0][j])
+			{
+				return board[0][j];
+			}
+		}
+
+		//判断第一条对角线
+	    int count = 0;
+		for(int i=0, j=0; i<SIZE && j<SIZE; ++i, ++j)
+		{
+			count += board[i][j];
+		}
+		if (count/SIZE == board[0][0])
+		{
+			return board[0][0];
+		}
+		
+		//判断第二条对角线
+		count = 0;
+		for(int i=0, j=SIZE-1; i<SIZE && j>=0; ++i, --j)
+		{
+			count += board[i][j];
+		}
+		if(count/SIZE == board[SIZE-1][0])
+		{
+			return board[SIZE-1][0];
+		}
+
+		//还没下完
+		for(int i=0; i<SIZE; ++i)
+		{
+			for(int j=0; j<SIZE; ++j)
+			{
+				if(board[i][j] == ' ')
+					return 'N';
+			}
+		}
+
+		return 'E';
 	}
 	~Room()
 	{
