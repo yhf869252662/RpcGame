@@ -12,6 +12,8 @@ using namespace std::chrono_literals;
 
 using namespace rest_rpc;
 using namespace rest_rpc::rpc_service;
+
+#define SIZE 5
 	
 uint32_t Register(const string& ip, const int& port, string& name, string& passwd, uint32_t& id)
 {
@@ -168,10 +170,178 @@ bool Match(const string& ip, const int& port, uint32_t& id)
 	return false;
 
 }
+uint32_t GetRoomId(const string& ip, const int& port, uint32_t& id)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        return client.call<uint32_t>("RpcRoomId", id);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+char GetMyPiece(const string& ip, const int& port, uint32_t& room_id, uint32_t& id)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        return client.call<uint32_t>("RpcPlayerPiece", room_id, id);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+bool IsMyTurn(const string& ip, const int& port, uint32_t& room_id, uint32_t& id)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        return client.call<uint32_t>("RpcIsMyTurn", room_id, id);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+int Step(const string& ip, const int& port, uint32_t& room_id, uint32_t& id, int& x, int& y)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        client.call<uint32_t>("RpcStep", room_id, id, x, y);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+char Judge(const string& ip, const int& port, uint32_t& room_id)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        return client.call<uint32_t>("RpcJudge", room_id);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+int GetBoard(const string& ip, const int& port, uint32_t& room_id, string& board)
+{
+	try {
+		rpc_client client(ip, port);
+		bool r = client.connect();
+		if (!r) {
+			std::cout << "connect timeout" << std::endl;
+			return 2;
+		}
+        board = client.call<uint32_t>("RpcBoard", room_id);
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+}
+void ShowBoard(string& board)
+{
+	cout <<"  | 1 | 2 | 3 | 4 | 5 |" <<endl;
+	cout <<"-----------------------" <<endl;
+	for (int i=0; i<SIZE; ++i)
+	{
+		cout << i+1;
+		for (int j=0; j<SIZE; ++j)
+		{
+			cout << " | " << board[i*SIZE+j];
+		}
+		cout << " |";
+		cout << endl;
+		if (i != SIZE-1)
+			cout <<"-----------------------" <<endl;
+	}
+	cout <<"-----------------------" <<endl;
+}
+bool PosIsRight(string& board, int& x, int& y)
+{
+	if(board[x*SIZE+y] != ' ')
+		return false;
+	return true;
+}
 void PlayerGobang(const string& ip, const int& port, uint32_t& id)
 {
-	printf("\ec");
-	cout << "匹配成功，开始游戏吧！" << endl;
+	printf("\ec");//清屏
+	//system("clear");
+	uint32_t room_id = GetRoomId(ip, port, id);
+	char piece = GetMyPiece(ip, port, room_id, id);
+
+	char ret;
+	while((ret = Judge(ip, port, room_id)) == 'N')
+	{
+
+		cout << "房间号:[" << room_id << "] 您执棋子[" << piece << "]" << endl;
+
+		string board;
+		GetBoard(ip, port, room_id, board);
+		ShowBoard(board);
+		while(!IsMyTurn(ip, port, room_id, id))
+		{
+			printf("\ec");
+			cout << "房间号:[" << room_id << "] 您执棋子[" << piece << "]" << endl;
+			ShowBoard(board);
+			cout << "等待对方思考......" <<endl;
+			sleep(1);
+		}
+		printf("\ec");
+		cout << "房间号:[" << room_id << "] 您执棋子[" << piece << "]" << endl;
+		ShowBoard(board);
+		cout << "请落子(x y)> ";
+		int x, y;
+		cin >> x >> y;
+		x -= 1;//对应数组位置
+		y -= 1;
+		while (!PosIsRight(board, x, y))
+		{
+			printf("\033[1A");//先回到上一行
+			printf("\033[K");//清除该行
+			cout << "落子有误，请重新输入!" << endl;
+			cout << "请落子(x y)> ";
+			cin >> x >> y;
+			x -= 1;
+			y -= 1;
+		}
+		Step(ip, port, room_id, id, x, y);
+	}
+	
+	//判断输赢
+	if(ret == 'E')
+	{
+		cout << "平局，请再接再厉吧" << endl;
+	}
+	else if(ret == piece)
+	{
+		cout << "恭喜你赢了！！！" << endl;
+	}
+	else
+	{
+		cout << "很遗憾，你输了，请再接再厉吧" << endl;
+	}
 }
 void Game(const string& ip, const int& port, uint32_t& id)
 {

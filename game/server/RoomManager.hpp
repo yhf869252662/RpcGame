@@ -41,6 +41,7 @@ public:
 		Room& r = room_set[room_id];
 		Lock();
 		bool ret = r.IsMyTurn(id);
+		//cout << "ret: " << ret << endl;
 		Unlock();
 		return ret;
 	}

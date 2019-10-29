@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 
@@ -33,6 +34,7 @@ public:
 	}
 	bool IsMyTurn(uint32_t& id)
 	{
+		//cout << "current: " << current << "id: " << id << endl;
 		return id == current ? true : false;
 	}
 	char Piece(uint32_t& id)
