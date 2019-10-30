@@ -31,15 +31,15 @@ public:
 	}
     void Step(uint32_t& room_id, uint32_t& id, int& x, int& y)
 	{
-		Room& r = room_set[room_id];
 		Lock();
+		Room& r = room_set[room_id];
 		r.Step(id, x, y);
 		Unlock();
 	}
     bool IsMyTurn(uint32_t& room_id, uint32_t& id)
 	{
-		Room& r = room_set[room_id];
 		Lock();
+		Room& r = room_set[room_id];
 		bool ret = r.IsMyTurn(id);
 		//cout << "ret: " << ret << endl;
 		Unlock();
@@ -47,24 +47,24 @@ public:
 	}
     char GetPlayerPiece(uint32_t& room_id, uint32_t& id)
 	{
-		Room& r = room_set[room_id];
 		Lock();
+		Room& r = room_set[room_id];
 		char ret = r.Piece(id);
 		Unlock();
 		return ret;
 	}
     char Judge(uint32_t& room_id)
 	{
-		Room& r = room_set[room_id];
 		Lock();
+		Room& r = room_set[room_id];
 		char ret = r.GameResult();
 		Unlock();
 		return ret;
 	}
     void GetBoard(uint32_t& room_id, string& board)
 	{
-		Room& r = room_set[room_id];
 		Lock();
+		Room& r = room_set[room_id];
 		r.Board(board);
 		Unlock();
 	}

@@ -75,7 +75,7 @@ public:
 			{
 				count += board[i][j];
 			}
-			if(count/SIZE == board[i][0])
+			if(board[i][0] != ' ' &&  count/SIZE == board[i][0])
 			{
 				return board[i][0];
 			}
@@ -89,7 +89,7 @@ public:
 			{
 				count += board[i][j];
 			}
-			if(count/SIZE == board[0][j])
+			if(board[0][j] != ' ' && count/SIZE == board[0][j])
 			{
 				return board[0][j];
 			}
@@ -101,7 +101,7 @@ public:
 		{
 			count += board[i][j];
 		}
-		if (count/SIZE == board[0][0])
+		if (board[0][0] != ' ' && count/SIZE == board[0][0])
 		{
 			return board[0][0];
 		}
@@ -112,7 +112,7 @@ public:
 		{
 			count += board[i][j];
 		}
-		if(count/SIZE == board[SIZE-1][0])
+		if(board[SIZE-1][0] != ' ' && count/SIZE == board[SIZE-1][0])
 		{
 			return board[SIZE-1][0];
 		}

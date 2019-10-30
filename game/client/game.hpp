@@ -194,7 +194,7 @@ char GetMyPiece(const string& ip, const int& port, uint32_t& room_id, uint32_t& 
 			std::cout << "connect timeout" << std::endl;
 			return 2;
 		}
-        return client.call<uint32_t>("RpcPlayerPiece", room_id, id);
+        return client.call<char>("RpcPlayerPiece", room_id, id);
 	}
 	catch (const std::exception& e) {
 		std::cout << e.what() << std::endl;
@@ -209,7 +209,7 @@ bool IsMyTurn(const string& ip, const int& port, uint32_t& room_id, uint32_t& id
 			std::cout << "connect timeout" << std::endl;
 			return 2;
 		}
-        return client.call<uint32_t>("RpcIsMyTurn", room_id, id);
+        return client.call<bool>("RpcIsMyTurn", room_id, id);
 	}
 	catch (const std::exception& e) {
 		std::cout << e.what() << std::endl;
@@ -224,7 +224,7 @@ int Step(const string& ip, const int& port, uint32_t& room_id, uint32_t& id, int
 			std::cout << "connect timeout" << std::endl;
 			return 2;
 		}
-        client.call<uint32_t>("RpcStep", room_id, id, x, y);
+        client.call<void>("RpcStep", room_id, id, x, y);
 	}
 	catch (const std::exception& e) {
 		std::cout << e.what() << std::endl;
@@ -239,7 +239,7 @@ char Judge(const string& ip, const int& port, uint32_t& room_id)
 			std::cout << "connect timeout" << std::endl;
 			return 2;
 		}
-        return client.call<uint32_t>("RpcJudge", room_id);
+        return client.call<char>("RpcJudge", room_id);
 	}
 	catch (const std::exception& e) {
 		std::cout << e.what() << std::endl;
@@ -254,7 +254,7 @@ int GetBoard(const string& ip, const int& port, uint32_t& room_id, string& board
 			std::cout << "connect timeout" << std::endl;
 			return 2;
 		}
-        board = client.call<uint32_t>("RpcBoard", room_id);
+        board = client.call<string>("RpcBoard", room_id);
 	}
 	catch (const std::exception& e) {
 		std::cout << e.what() << std::endl;
@@ -277,6 +277,7 @@ void ShowBoard(string& board)
 			cout <<"-----------------------" <<endl;
 	}
 	cout <<"-----------------------" <<endl;
+	cout << endl;
 }
 bool PosIsRight(string& board, int& x, int& y)
 {
@@ -284,39 +285,47 @@ bool PosIsRight(string& board, int& x, int& y)
 		return false;
 	return true;
 }
-void PlayerGobang(const string& ip, const int& port, uint32_t& id)
+void PlayGobang(const string& ip, const int& port, uint32_t& id)
 {
-	printf("\ec");//清屏
 	//system("clear");
 	uint32_t room_id = GetRoomId(ip, port, id);
 	char piece = GetMyPiece(ip, port, room_id, id);
+	string board;
 
 	char ret;
 	while((ret = Judge(ip, port, room_id)) == 'N')
 	{
 
+		printf("\ec");//清屏
 		cout << "房间号:[" << room_id << "] 您执棋子[" << piece << "]" << endl;
 
-		string board;
 		GetBoard(ip, port, room_id, board);
 		ShowBoard(board);
 		while(!IsMyTurn(ip, port, room_id, id))
 		{
-			printf("\ec");
-			cout << "房间号:[" << room_id << "] 您执棋子[" << piece << "]" << endl;
-			ShowBoard(board);
+			//printf("\ec");
+			//cout << "房间号:[" << room_id << "] 您执棋子[" << piece << "]" << endl;
+			//ShowBoard(board);
+			printf("\033[1A");//先回到上一行
+			printf("\033[K");//清除该行
 			cout << "等待对方思考......" <<endl;
 			sleep(1);
+			//continue;
+		}
+		if((ret = Judge(ip, port, room_id)) != 'N')
+		{
+			break;
 		}
 		printf("\ec");
 		cout << "房间号:[" << room_id << "] 您执棋子[" << piece << "]" << endl;
+		GetBoard(ip, port, room_id, board);
 		ShowBoard(board);
 		cout << "请落子(x y)> ";
 		int x, y;
 		cin >> x >> y;
 		x -= 1;//对应数组位置
 		y -= 1;
-		while (!PosIsRight(board, x, y))
+		while (x < 0 || x > 4 || y < 0 || y > 4 || !PosIsRight(board, x, y))
 		{
 			printf("\033[1A");//先回到上一行
 			printf("\033[K");//清除该行
@@ -327,22 +336,88 @@ void PlayerGobang(const string& ip, const int& port, uint32_t& id)
 			y -= 1;
 		}
 		Step(ip, port, room_id, id, x, y);
+		printf("\ec");
+		GetBoard(ip, port, room_id, board);
+		ShowBoard(board);
 	}
 	
 	//判断输赢
 	if(ret == 'E')
 	{
+		printf("\ec");
+		GetBoard(ip, port, room_id, board);
+		ShowBoard(board);
 		cout << "平局，请再接再厉吧" << endl;
 	}
 	else if(ret == piece)
 	{
+		printf("\ec");
+		GetBoard(ip, port, room_id, board);
+		ShowBoard(board);
 		cout << "恭喜你赢了！！！" << endl;
 	}
 	else
 	{
+		printf("\ec");
+		GetBoard(ip, port, room_id, board);
+		ShowBoard(board);
 		cout << "很遗憾，你输了，请再接再厉吧" << endl;
 	}
 }
+//void PlayGobang(const string& ip, const int& port, uint32_t& id)
+//{
+//    int x,y;
+//    char result = 'N';
+//    string board;
+//    uint32_t room_id = GetRoomId(ip, port, id);
+//    cout<<"你的房间号是："<<room_id<<endl;
+//    if(room_id < 1024){
+//        return;
+//    }
+//    char piece = GetMyPiece(ip, port, room_id, id);
+//    cout<<"你所执棋子是："<<piece<<endl;
+//    for( ; ; ){
+//        GetBoard(ip, port, room_id, board);//获取棋盘
+//        ShowBoard(board);//展示棋盘
+//        //判断该谁走
+//        if(result = Judge(ip, port, room_id) != 'N'){
+//            break;
+//        }
+//        if(!IsMyTurn(ip, port, room_id, id)){
+//            cout<<"对方正在思考......"<<endl;
+//            sleep(1);
+//            continue;
+//        }
+//        cout<<"请输入你的落子位置：>";
+//        cin>>x>>y;
+//        if(x >= 1 && x<=5 && y>=1 && y<=5){
+//            if(!PosIsRight(board, x, y)){
+//                cout<<"你输入的位置已经被占用，请重新输入！"<<endl;
+//            }
+//            else{
+//                Step(ip, port, room_id, id, x, y);
+//                result = Judge(ip, port, room_id);
+//                if(result != 'N'){
+//                    break;
+//                }
+//            }
+//            }
+//        else{
+//            cout<<"你输入的位置有误，请重新输入！"<<endl;
+//        }
+//    }
+//    GetBoard(ip, port, room_id, board);//获取棋盘
+//    ShowBoard(board);//展示棋盘
+//    if(result == 'E'){
+//        cout<<"平局，在来一局吧!"<<endl;
+//    }
+//    else if(result == piece){
+//        cout<<"恭喜，你赢了！"<<endl;
+//    }
+//    else{
+//        cout<<"好遗憾，你输了，在来一局吧！"<<endl;
+//    }
+//}
 void Game(const string& ip, const int& port, uint32_t& id)
 {
 	int select = 0;
@@ -359,7 +434,7 @@ void Game(const string& ip, const int& port, uint32_t& id)
 			{
 				if(Match(ip, port, id))	
 				{
-					PlayerGobang(ip, port, id);
+					PlayGobang(ip, port, id);
 				}
 				else
 				{
