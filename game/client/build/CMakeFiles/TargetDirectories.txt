@@ -1,3 +1,0 @@
-/home/lyhf/code/RpcGame/game/client/build/CMakeFiles/rebuild_cache.dir
-/home/lyhf/code/RpcGame/game/client/build/CMakeFiles/edit_cache.dir
-/home/lyhf/code/RpcGame/game/client/build/CMakeFiles/game_client.dir
